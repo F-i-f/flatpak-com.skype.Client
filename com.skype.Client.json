@@ -62,7 +62,10 @@
             "name": "skype",
             "buildsystem": "simple",
             "build-commands": [
-                "install apply_extra ${FLATPAK_DEST}/bin",
+                "unsquashfs skypeforlinux.snap",
+                "mv squashfs-root/usr/share/skypeforlinux ${FLATPAK_DEST}/skypeforlinux",
+                "rm -fr squafs-root skypeforlinux.snap",
+                "chmod u+w ${FLATPAK_DEST}/skypeforlinux/chrome-sandbox",
                 "install skype.sh ${FLATPAK_DEST}/bin/skype",
                 "install -Dm644 ${FLATPAK_ID}.appdata.xml ${FLATPAK_DEST}/share/appdata/${FLATPAK_ID}.appdata.xml",
                 "ARCH_TRIPLE=$(gcc --print-multiarch) && cp /usr/lib/${ARCH_TRIPLE}/libbfd-*.so ${FLATPAK_DEST}/lib",
@@ -72,22 +75,12 @@
             "sources": [
                 {
                     "type": "script",
-                    "dest-filename": "apply_extra",
-                    "commands": [
-                        "unsquashfs skypeforlinux.snap",
-                        "rm skypeforlinux.snap",
-                        "mv squashfs-root/usr/share/skypeforlinux skypeforlinux",
-                        "touch skypeforlinux/chrome-sandbox && chmod +x skypeforlinux/chrome-sandbox"
-                    ]
-                },
-                {
-                    "type": "script",
                     "dest-filename": "skype.sh",
                     "commands": [
                         "SKYPE_LOGS=$XDG_CONFIG_HOME/logs",
                         "mkdir -p $SKYPE_LOGS",
                         "export TMPDIR=\"$XDG_RUNTIME_DIR/app/$FLATPAK_ID\"",
-                        "exec zypak-wrapper /app/extra/skypeforlinux/skypeforlinux --executed-from=\"$(pwd)\" --pid=$$ \"$@\" > \"$SKYPE_LOGS/skype-startup.log\" 2>&1"
+                        "exec zypak-wrapper /app/skypeforlinux/skypeforlinux --executed-from=\"$(pwd)\" --pid=$$ \"$@\" > \"$SKYPE_LOGS/skype-startup.log\" 2>&1"
                     ]
                 },
                 {
@@ -103,11 +96,10 @@
                     "path": "com.skype.Client.desktop"
                 },
                 {
-                    "type": "extra-data",
-                    "filename": "skypeforlinux.snap",
+                    "type": "file",
+                    "dest-filename": "skypeforlinux.snap",
                     "url": "https://api.snapcraft.io/api/v1/snaps/download/QRDEfjn4WJYnm0FzDKwqqRZZI77awQEV_348.snap",
                     "sha256": "ff0a4206582da57371e1a56a2b43a08cc8b6c6eb73a82550ee2944968fabf871",
-                    "size": 185835520,
                     "only-arches": [
                         "x86_64"
                     ],
